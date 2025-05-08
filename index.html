@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Literacy Trivia</title>
+    <style>
+        /* Light Theme (Default) */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+            box-sizing: border-box;
+            transition: background-color 0.5s ease; 
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            transition: color 0.5s ease;
+        }
+        #quiz-container {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            width: 80%;
+            max-width: 600px;
+            text-align: center;
+            transition: background-color 0.5s ease, box-shadow 0.5s ease;
+        }
+        #question-container {
+            font-size: 18px;
+            margin-bottom: 10px;
+            text-align: left;
+            color: #333;
+            transition: color 0.5s ease;
+        }
+        #options-container {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        .option-button {
+            padding: 10px;
+            margin: 5px 0;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            text-align: left;
+        }
+        .option-button:hover {
+            background-color: #0056b3;
+        }
+        #result-container {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            margin-top: 10px;
+            text-align: center;
+            transition: color 0.5s ease;
+        }
+        #game-message {
+            font-size: 24px;
+            margin-bottom: 20px;
+            animation: blink 1s step-start infinite;
+            display: none;
+            text-align: center;
+            color: #333;
+            transition: color 0.5s ease;
+        }
+
+        #start-game, #answer-key, #toggle-dark-mode {
+            font-size: 18px; 
+            padding: 10px 20px;  
+            cursor: pointer;
+            margin: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        #start-game:hover, #answer-key:hover, #toggle-dark-mode:hover {
+            background-color: #367c39;
+        }
+        #answer-key {
+            background-color: #008CBA;
+        }
+        #answer-key:hover {
+            background-color: #00688B;
+        }
+        #toggle-dark-mode {
+            background-color: #222; 
+            color: #eee;
+        }
+        #toggle-dark-mode:hover {
+            background-color: #444;
+        }
+
+     
+        body.dark-mode {
+            background-color: #121212;
+            color: #eee;
+        }
+        body.dark-mode h1 {
+            color: #eee;
+        }
+        body.dark-mode #quiz-container {
+            background-color: #1f1f1f;
+            box-shadow: 0 2px 4px rgba(255, 255, 255, 0.1);
+        }
+        body.dark-mode #question-container {
+            color: #eee;
+        }
+        body.dark-mode .option-button {
+            background-color: #252526;
+            color: #eee;
+        }
+        body.dark-mode .option-button:hover {
+            background-color: #333;
+        }
+        body.dark-mode #result-container {
+            color: #eee;
+        }
+        body.dark-mode #game-message {
+            color: #eee;
+        }
+        @keyframes blink-dark {
+            from, to { color: transparent; }
+            50% { color: #eee; }
+        }
+        body.dark-mode #game-message {
+            animation-name: blink-dark;
+        }
+
+    </style>
+</head>
+<body>
+    <h1 id="main-title">Financial Literacy Trivia!</h1>
+    <p id="game-message">Game Loading...</p>
+    <div id="quiz-container" style="display: none;">
+        <div id="question-container"></div>
+        <div id="options-container"></div>
+        <div id="result-container"></div>
+    </div>
+    <button id="start-game">Start Game</button>
+    <button id="answer-key">Answer Key</button>
+    <button id="toggle-dark-mode">Toggle Dark Mode</button>
+
+    <script>
+        const quizData = [
+            {
+                question: "What is the primary purpose of a budget?",
+                options: ["A. To track expenses and income", "B. To avoid paying taxes", "C. To increase debt", "D. To impress friends"],
+                correctAnswer: "A"
+            },
+            {
+                question: "What is a checking account?",
+                options: ["A. An account to save and grow money", "B. An account to spend your money", "C. An investing account", "D. Apple's new product"],
+                correctAnswer: "A"
+            },
+            {
+                question: "Which of the following is generally considered a good way to build wealth over the long term?",
+                options: ["A. Playing the lottery", "B. Gambling", "C. Investing your money", "D. None of the above"],
+                correctAnswer: "C"
+            },
+            {
+                question: "What is the meaning of EMT?",
+                options: ["A. Emergency Money Pay", "B. Electric Money Transfer", "C. Emily Money Time", "D. IDK"],
+                correctAnswer: "B"
+            },
+            {
+                question: "What does investing mean?",
+                options: ["A. To grow your money over time", "B. To pay for planned vacations", "C. To spend money", "D. To increase credit card limits"],
+                correctAnswer: "A"
+            },
+            {
+                question: "I bought something that costs $100. Calculate the total cost including tax (13% tax).",
+                options: ["A. $1092019", "B. $100", "C. $113", "D. None of the above"],
+                correctAnswer: "C"
+            },
+            {
+                question: "I have $14.  I want to buy chips ($3), a sandwich ($5), juice ($2) and a chocolate bar ($1).  How much change will I get?",
+                options: ["A. $1", "B. No idea", "C. $0", "D. $3"],
+                correctAnswer: "D"
+            },
+            {
+                question: "Final question: What is the total cost of a $29 item with a 13% tax?",
+                options: ["A. $32.77", "B. $29", "C. $30", "D. $31"],
+                correctAnswer: "A"
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let gameStarted = false;
+        let darkMode = false; // Keep track of the theme state
+
+        const body = document.body;
+        const quizContainer = document.getElementById('quiz-container');
+        const questionContainer = document.getElementById('question-container');
+        const optionsContainer = document.getElementById('options-container');
+        const resultContainer = document.getElementById('result-container');
+        const startGameButton = document.getElementById('start-game');
+        const gameMessage = document.getElementById('game-message');
+        const answerKeyButton = document.getElementById('answer-key');
+        const toggleDarkModeButton = document.getElementById('toggle-dark-mode');
+        const mainTitle = document.getElementById('main-title');
+
+
+        startGameButton.addEventListener('click', startGame);
+        answerKeyButton.addEventListener('click', showAnswerKey);
+        toggleDarkModeButton.addEventListener('click', toggleDarkMode);
+
+
+        function showRules() {
+            alert("Welcome to Financial Literacy Trivia!\n\n" +
+                "1. You will be asked a series of questions about financial literacy.\n" +
+                "2. Choose the correct answer from the options provided.\n" +
+                "3. Each correct answer will earn you points.\n" +
+                "4. Try to score as high as possible!\n" +
+                "5. The game will start a few seconds after you click 'Ok'.\n" +
+                "6. The quiz will be scored out of 8.\n" +
+                "7. This is a single-player game\n\n" +
+                "Good luck and have fun!");
+        }
+
+        function startGame() {
+            if (!gameStarted) {
+                gameStarted = true;
+                showRules();
+                gameMessage.style.display = "block";
+                startGameButton.style.display = "none";
+                answerKeyButton.style.display = "none";
+                mainTitle.style.display = "none";
+
+                let blinkCount = 0;
+                const blinkInterval = setInterval(() => {
+                    blinkCount++;
+                    if (blinkCount >= 2) {
+                        clearInterval(blinkInterval);
+                        gameMessage.style.display = "none";
+                        quizContainer.style.display = "block";
+                        loadQuestion();
+                    }
+                }, 2000);
+            }
+        }
+
+        function loadQuestion() {
+            if (currentQuestionIndex < quizData.length) {
+                const currentQuestion = quizData[currentQuestionIndex];
+                questionContainer.textContent = currentQuestion.question;
+                optionsContainer.innerHTML = '';
+
+                currentQuestion.options.forEach(option => {
+                    const button = document.createElement('button');
+                    button.textContent = option;
+                    button.className = 'option-button';
+                    button.addEventListener('click', () => checkAnswer(option.charAt(0)));
+                    optionsContainer.appendChild(button);
+                });
+                resultContainer.textContent = '';
+            } else {
+                showResults();
+            }
+        }
+
+        function checkAnswer(answer) {
+            const currentQuestion = quizData[currentQuestionIndex];
+            if (answer === currentQuestion.correctAnswer) {
+                resultContainer.textContent = "Correct!";
+                score++;
+            } else {
+                resultContainer.textContent = `Incorrect. The correct answer was ${currentQuestion.correctAnswer}.`;
+            }
+            currentQuestionIndex++;
+            loadQuestion();
+        }
+
+        function showResults() {
+            quizContainer.innerHTML = `<h2>Quiz Finished!</h2>
+                                     <p>Your final score is ${score} out of ${quizData.length}.</p>
+                                     <p>Refresh the page to play again.</p>`;
+        }
+
+        function showAnswerKey() {
+            alert("Answer Key:\n\n" +
+                "1. A\n" +
+                "2. A\n" +
+                "3. C\n" +
+                "4. B\n" +
+                "5. A\n" +
+                "6. C\n" +
+                "7. D\n" +
+                "8. A\n\n" +
+                "Note: The answer key is for reference only. Please try to answer the questions on your own first!");
+        }
+
+        function toggleDarkMode() {
+            darkMode = !darkMode;
+            if (darkMode) {
+                body.classList.add('dark-mode');
+            } else {
+                body.classList.remove('dark-mode');
+            }
+        }
+    </script>
+</body>
+</html>
